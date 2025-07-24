@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const {
-  GROQ_API_KEY
+  GROQ_API_KEY,
+  DB_URL
 } = process.env;
 
 
