@@ -1,6 +1,16 @@
 import { GROQ_API_KEY } from './config/index.js';
 import Groq from 'groq-sdk';
 import readline from 'node:readline/promises';
+import { connectDB } from './db.js';
+import Expense  from './model.js'; 
+// Connect to the database
+try {
+    await connectDB(); 
+    console.log('Connected to MongoDB'); 
+} catch (err) {
+    console.error(err);
+    process.exit(1);
+}
 
 
 //dummy db
@@ -121,7 +131,7 @@ async function callAgent() {
 
                 } else if (functionName === "addExpense") {
                     //call function and get its result
-                    result = addExpense(JSON.parse(functionArgs));
+                    result = await addExpense(JSON.parse(functionArgs));
                     messages.push({
                         role: "tool",
                         tool_call_id: tool.id,
@@ -161,8 +171,19 @@ function getTotalExpense({ from, to }) {
 
 }
 
-function addExpense({ name, amount }) {
-    expenseDB.push({ name, amount: Number(amount) });
-    return "Added to expense DB"
+async function addExpense({ name, amount }) {
+    // expenseDB.push({ name, amount: Number(amount) });
+    // return "Added to expense DB"
+    try{
+        const exp = new Expense({name, amount: Number(amount) });
+        const saved = await exp.save();
+        console.log("saved to db", saved);
+        return "Expense saved to DB"
+
+    }catch(err){
+        console.error(err);
+        return "Erro saving expense to DB"
+    }
+
 }
 
